@@ -99,6 +99,9 @@ GROUP BY name;
 
 
 
+
+
+
 -- 5️⃣ List species that have never been sighted.
 
 SELECT common_name 
@@ -108,4 +111,49 @@ GROUP BY common_name
 HAVING COUNT(sighting_id) =0;
 
 
+
+
+
 -- 6️⃣ Show the most recent 2 sightings.
+
+Select common_name, sighting_time, name 
+FROM sightings
+JOIN species ON sightings.species_id = species.species_id
+JOIN rangers ON sightings.ranger_id = rangers.ranger_id
+Order by sighting_time DESC
+LIMIT 2;
+
+
+
+
+-- 7️⃣ Update all species discovered before year 1800 to have status 'Historic'.
+
+Update species 
+Set conservation_status = 'Historic'
+where extract(year from discovery_date) < 1800;
+
+
+
+
+
+
+-- 8️⃣ Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'.
+
+Select sighting_id, 
+case 
+    when extract(hour from sighting_time)<12 then 'Morning'
+    when extract(hour from sighting_time) BETWEEN 12 AND 16  then 'Afternoon'
+    else 'Evening'
+    end as time_of_day
+    from sightings;
+
+
+
+
+-- 9️⃣ Delete rangers who have never sighted any species
+DELETE FROM
+ rangers WHERE ranger_id NOT IN (
+    SELECT DISTINCT ranger_id FROM sightings
+);
+
+
